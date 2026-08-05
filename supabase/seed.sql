@@ -1,0 +1,11 @@
+-- Nico AI — Optional seed for local dev.
+--
+-- Runs after `supabase db reset`. Leave empty for a clean database.
+-- The trigger `on_auth_user_created` (migration 20260728131403) auto-creates
+-- a `public.users` row and a `public.user_profiles` row for every new
+-- account created through Supabase Auth, so no manual seeding is required
+-- for the app to work.
+--
+-- Example (uncomment to insert a demo memory once a user exists):
+-- INSERT INTO public.memories (user_id, type, content, importance)
+-- SELECT id, 'fact', 'Demo memory', 'low' FROM public.users LIMIT 1;

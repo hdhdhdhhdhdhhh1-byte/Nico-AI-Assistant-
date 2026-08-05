@@ -1,0 +1,6 @@
+{
+  "name": "Nico AI Voice Assistant",
+  "description": "Nico AI voice assistant application featuring voice interaction, transcript history, and smart capabilities.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

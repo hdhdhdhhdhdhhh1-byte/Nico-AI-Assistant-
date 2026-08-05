@@ -1,0 +1,131 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build web app
+        run: npm run build
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Copy custom files
+        run: |
+          mkdir -p android/app/src/main/java/com/nico/ai/
+          cp apps/mobile/android/VoiceBackgroundService.kt android/app/src/main/java/com/nico/ai/
+          cp apps/mobile/android/NicoVoiceServicePlugin.kt android/app/src/main/java/com/nico/ai/
+          cp apps/mobile/android/MainActivity.java android/app/src/main/java/com/nico/ai/
+
+      - name: Add Kotlin support to build.gradle
+        run: |
+          # Main build.gradle
+          if ! grep -q "kotlin-gradle-plugin" android/build.gradle; then
+            sed -i "/dependencies {/a \        classpath \"org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22\"" android/build.gradle
+          fi
+          if ! grep -q "mavenCentral()" android/build.gradle; then
+            sed -i "/repositories {/a \        mavenCentral()" android/build.gradle
+          fi
+
+          # app/build.gradle
+          if ! grep -q "kotlin-android" android/app/build.gradle; then
+            sed -i "1i apply plugin: 'kotlin-android'" android/app/build.gradle
+          fi
+          if ! grep -q "kotlin-stdlib" android/app/build.gradle; then
+            sed -i "/dependencies {/a \    implementation \"org.jetbrains.kotlin:kotlin-stdlib:1.9.22\"" android/app/build.gradle
+          fi
+
+      - name: Fix AndroidManifest
+        run: |
+          cat > android/app/src/main/AndroidManifest.xml << 'MANIFEST'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.RECORD_AUDIO" />
+              <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+              <uses-permission android:name="android.permission.READ_CONTACTS" />
+              <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+              <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+              <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+              <uses-permission android:name="android.permission.WAKE_LOCK" />
+              <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+              <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+              <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+              <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+              <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+              <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+              <uses-permission android:name="android.permission.READ_CALENDAR" />
+              <application
+                  android:allowBackup="true"
+                  android:icon="@mipmap/ic_launcher"
+                  android:label="Nico AI"
+                  android:supportsRtl="true"
+                  android:theme="@style/AppTheme"
+                  android:usesCleartextTraffic="true">
+                  <activity
+                      android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+                      android:name="com.nico.ai.MainActivity"
+                      android:label="Nico AI"
+                      android:theme="@style/AppTheme.NoActionBarLaunch"
+                      android:launchMode="singleTask"
+                      android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+                  <service
+                      android:name=".VoiceBackgroundService"
+                      android:exported="false"
+                      android:foregroundServiceType="microphone" />
+                  <provider
+                      android:name="androidx.core.content.FileProvider"
+                      android:authorities="${applicationId}.fileprovider"
+                      android:exported="false"
+                      android:grantUriPermissions="true">
+                      <meta-data
+                          android:name="android.support.FILE_PROVIDER_PATHS"
+                          android:resource="@xml/file_paths" />
+                  </provider>
+              </application>
+          </manifest>
+          MANIFEST
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build APK
+        run: cd android && chmod +x gradlew && ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nico-AI-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk

@@ -1,0 +1,11 @@
+node_modules
+dist
+.env
+android/
+local-ai/
+models/
+*.wav
+*.gguf
+*_report.txt
+*.backup
+.output

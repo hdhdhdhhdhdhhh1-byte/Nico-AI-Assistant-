@@ -1,0 +1,33 @@
+import type { CapacitorConfig } from "@capacitor/cli";
+
+/**
+ * Nico AI — Android production configuration.
+ */
+
+const config: CapacitorConfig = {
+  appId: "com.nico.ai",
+  appName: "Nico AI",
+  webDir: ".output/public",
+
+  android: {
+    allowMixedContent: false,
+    captureInput: true,
+    webContentsDebuggingEnabled: false,
+  },
+
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 1200,
+      backgroundColor: "#070B18",
+      androidScaleType: "CENTER_CROP",
+      showSpinner: false,
+    },
+
+    LocalNotifications: {
+      smallIcon: "ic_stat_nico",
+      iconColor: "#4F6BFF",
+    },
+  },
+};
+
+export default config;
