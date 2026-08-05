@@ -42,8 +42,12 @@ jobs:
             echo '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Nico AI Assistant</title></head><body><div id="root"></div></body></html>' > .output/public/index.html
           fi
 
-      - name: Sync Capacitor Android
-        run: npx cap sync android
+      - name: Add and Sync Capacitor Android
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          npx cap sync android
 
       - name: Make Gradle Executable
         run: chmod +x android/gradlew
