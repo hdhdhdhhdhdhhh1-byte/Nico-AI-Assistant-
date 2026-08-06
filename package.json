@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "mobile:build": "vite build && cap sync android",
+    "mobile:build": "vite build --config vite.mobile.config.ts && npx cap sync android",
     "mobile:open": "cap open android",
     "mobile:run": "cap run android",
     "mobile:init": "npx cap add android && mkdir -p android/app/src/main/java/com/nico/ai/ && cp apps/mobile/android/*.kt android/app/src/main/java/com/nico/ai/ && cp apps/mobile/android/*.java android/app/src/main/java/com/nico/ai/ && echo 'الرجاء دمج AndroidManifest.additions.xml يدوياً في AndroidManifest.xml'"
@@ -61,7 +61,6 @@
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.101.1",
     "@tanstack/react-router": "^1.170.16",
-    "@tanstack/react-start": "^1.168.26",
     "@tanstack/router-plugin": "^1.168.18",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -82,19 +81,18 @@
     "tailwindcss": "^4.2.1",
     "tw-animate-css": "^1.3.4",
     "vaul": "^1.1.2",
-    "vite-tsconfig-paths": "^6.0.2",
     "zod": "^3.24.2"
   },
   "devDependencies": {
     "@capacitor/android": "^8.4.2",
     "@capacitor/cli": "^8.4.2",
     "@eslint/js": "^9.32.0",
-    "@lovable.dev/vite-tanstack-config": "^2.7.7",
+    "@tanstack/react-start": "^1.168.37",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@types/sql.js": "^1.4.11",
-    "@vitejs/plugin-react": "^6.0.4",
+    "@vitejs/plugin-react": "^6.0.5",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
@@ -107,6 +105,7 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^8.0.16",
+    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.10"
   }
 }
